@@ -1,0 +1,774 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Generador de Credenciales</title>
+
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:#eef1f6;
+  color:#263247;
+}
+header{
+  background:#172b4d;
+  color:white;
+  padding:20px;
+  text-align:center;
+}
+header h1{margin:0;font-size:24px}
+main{
+  max-width:1250px;
+  margin:auto;
+  padding:20px;
+  display:grid;
+  grid-template-columns: minmax(280px,420px) 1fr;
+  gap:20px;
+}
+.panel,.preview{
+  background:white;
+  border-radius:15px;
+  padding:20px;
+  box-shadow:0 4px 18px #00000012;
+}
+h2{margin-top:0;color:#172b4d}
+label{
+  display:block;
+  margin:13px 0 6px;
+  font-weight:bold;
+  font-size:13px;
+}
+input,select{
+  width:100%;
+  padding:10px;
+  border:1px solid #ccd3df;
+  border-radius:7px;
+  font-size:14px;
+}
+input[type=color]{height:42px;padding:4px}
+input[type=file]{background:#f7f8fa}
+.grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+button{
+  border:0;
+  border-radius:8px;
+  padding:12px;
+  font-weight:bold;
+  cursor:pointer;
+  background:#1769aa;
+  color:white;
+  margin-top:10px;
+}
+button:hover{filter:brightness(.92)}
+.buttons{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+.buttons button{flex:1}
+.secondary{background:#52647c}
+.green{background:#16845b}
+.danger{background:#b93838}
+.preview{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-start;
+  min-width:0;
+}
+#credential{
+  width:min(100%,650px);
+  aspect-ratio:1010/638;
+  position:relative;
+  overflow:hidden;
+  border-radius:18px;
+  background:linear-gradient(135deg,#12345b,#2877a9);
+  color:white;
+  box-shadow:0 12px 30px #0003;
+  font-family:Arial,sans-serif;
+}
+#credential.vertical{
+  width:min(100%,380px);
+  aspect-ratio:638/1010;
+}
+#credential::before{
+  content:"";
+  position:absolute;
+  width:70%;
+  height:150%;
+  background:#ffffff15;
+  transform:rotate(35deg);
+  left:55%;
+  top:-25%;
+}
+#credential::after{
+  content:"";
+  position:absolute;
+  width:35%;
+  height:120%;
+  background:#ffffff12;
+  transform:rotate(35deg);
+  left:75%;
+  top:-10%;
+}
+.card-content{
+  position:absolute;
+  inset:0;
+  z-index:1;
+  padding:4%;
+  display:flex;
+  flex-direction:column;
+}
+.card-header{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  min-height:17%;
+}
+#logoPreview{
+  width:65px;
+  height:65px;
+  object-fit:contain;
+  background:#ffffff;
+  border-radius:9px;
+  padding:4px;
+  display:none;
+}
+.company{
+  font-size:clamp(13px,2.2vw,23px);
+  font-weight:bold;
+  overflow-wrap:anywhere;
+}
+.card-body{
+  flex:1;
+  display:flex;
+  align-items:center;
+  gap:5%;
+  min-height:0;
+}
+#photoPreview{
+  width:31%;
+  height:85%;
+  object-fit:cover;
+  border:4px solid #ffffff;
+  border-radius:12px;
+  background:#ffffff33;
+}
+.employee-info{
+  flex:1;
+  min-width:0;
+}
+#namePreview{
+  font-size:clamp(18px,3.1vw,34px);
+  font-weight:bold;
+  overflow-wrap:anywhere;
+  margin-bottom:12px;
+}
+.data-line{
+  font-size:clamp(10px,1.5vw,16px);
+  margin:7px 0;
+  overflow-wrap:anywhere;
+}
+.card-footer{
+  border-top:1px solid #ffffff77;
+  padding-top:9px;
+  font-size:clamp(9px,1.2vw,13px);
+  text-align:center;
+}
+#credential.vertical .card-content{padding:6%}
+#credential.vertical .card-header{
+  flex-direction:column;
+  justify-content:center;
+  text-align:center;
+  min-height:22%;
+}
+#credential.vertical #logoPreview{
+  width:70px;height:70px;
+}
+#credential.vertical .card-body{
+  flex-direction:column;
+  justify-content:center;
+  gap:12px;
+}
+#credential.vertical #photoPreview{
+  width:48%;
+  height:42%;
+}
+#credential.vertical .employee-info{
+  width:100%;
+  text-align:center;
+}
+#credential.vertical #namePreview{
+  font-size:clamp(18px,5vw,30px);
+}
+#credential.vertical .data-line{
+  font-size:clamp(11px,2.8vw,15px);
+}
+#credential.vertical .card-footer{font-size:11px}
+#camera{
+  display:none;
+  width:100%;
+  border-radius:10px;
+  margin-top:10px;
+  background:#111;
+}
+.note{
+  color:#68768a;
+  font-size:12px;
+  line-height:1.5;
+}
+@media(max-width:850px){
+  main{grid-template-columns:1fr}
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>GENERADOR DE CREDENCIALES</h1>
+  <p>Diseña, personaliza y descarga credenciales de empleados</p>
+</header>
+
+<main>
+
+<section class="panel">
+  <h2>1. Datos de la empresa</h2>
+
+  <label>Nombre de la empresa o institución</label>
+  <input id="company" value="MI EMPRESA">
+
+  <label>Logotipo</label>
+  <input type="file" id="logoFile" accept="image/*">
+
+  <h2 style="margin-top:25px">2. Datos del empleado</h2>
+
+  <label>Fotografía del empleado</label>
+  <input type="file" id="photoFile" accept="image/*">
+
+  <div class="buttons">
+    <button type="button" id="cameraButton" class="secondary">Abrir cámara</button>
+    <button type="button" id="captureButton" class="green">Tomar foto</button>
+  </div>
+
+  <video id="camera" autoplay playsinline></video>
+
+  <label>Nombre completo</label>
+  <input id="name" placeholder="Nombre del empleado">
+
+  <label>Puesto</label>
+  <input id="job" placeholder="Ej. Auxiliar administrativo">
+
+  <label>Departamento</label>
+  <input id="department" placeholder="Ej. Recursos Humanos">
+
+  <div class="grid">
+    <div>
+      <label>Número de empleado</label>
+      <input id="employeeNumber" placeholder="001">
+    </div>
+    <div>
+      <label>Teléfono</label>
+      <input id="phone" placeholder="Teléfono">
+    </div>
+  </div>
+
+  <label>Correo electrónico</label>
+  <input id="email" placeholder="correo@empresa.com">
+
+  <div class="grid">
+    <div>
+      <label>Fecha de ingreso</label>
+      <input type="date" id="startDate">
+    </div>
+    <div>
+      <label>Vigencia</label>
+      <input type="date" id="expiryDate">
+    </div>
+  </div>
+
+  <h2 style="margin-top:25px">3. Diseño de credencial</h2>
+
+  <label>Orientación</label>
+  <select id="orientation">
+    <option value="horizontal">Horizontal</option>
+    <option value="vertical">Vertical</option>
+  </select>
+
+  <label>Fondo prediseñado</label>
+  <select id="background">
+    <option value="blue">Azul institucional</option>
+    <option value="navy">Azul marino</option>
+    <option value="red">Rojo elegante</option>
+    <option value="green">Verde</option>
+    <option value="purple">Morado</option>
+    <option value="black">Negro</option>
+    <option value="orange">Naranja</option>
+    <option value="gray">Gris</option>
+    <option value="teal">Turquesa</option>
+  </select>
+
+  <label>O cargar un fondo personalizado</label>
+  <input type="file" id="backgroundFile" accept="image/*">
+
+  <label>Tipo de letra</label>
+  <select id="font">
+    <option value="Arial">Arial</option>
+    <option value="Roboto">Roboto</option>
+    <option value="Montserrat">Montserrat</option>
+    <option value="Poppins">Poppins</option>
+    <option value="Verdana">Verdana</option>
+    <option value="Georgia">Georgia</option>
+    <option value="Tahoma">Tahoma</option>
+    <option value="Trebuchet MS">Trebuchet MS</option>
+    <option value="Times New Roman">Times New Roman</option>
+    <option value="Courier New">Courier New</option>
+  </select>
+
+  <h2 style="margin-top:25px">4. Colores de texto</h2>
+
+  <div class="grid">
+    <div>
+      <label>Nombre</label>
+      <input type="color" id="nameColor" value="#ffffff">
+    </div>
+    <div>
+      <label>Datos</label>
+      <input type="color" id="dataColor" value="#ffffff">
+    </div>
+    <div>
+      <label>Empresa</label>
+      <input type="color" id="companyColor" value="#ffffff">
+    </div>
+    <div>
+      <label>Pie de credencial</label>
+      <input type="color" id="footerColor" value="#ffffff">
+    </div>
+  </div>
+
+  <label>Estilo del nombre</label>
+  <select id="nameWeight">
+    <option value="bold">Negrita</option>
+    <option value="normal">Normal</option>
+  </select>
+
+  <label>Estilo de los datos</label>
+  <select id="dataWeight">
+    <option value="normal">Normal</option>
+    <option value="bold">Negrita</option>
+  </select>
+
+  <label>Texto inferior</label>
+  <input id="footer" value="IDENTIFICACIÓN OFICIAL">
+
+  <div class="buttons" style="margin-top:20px">
+    <button type="button" class="green" onclick="downloadCredential()">Descargar PNG</button>
+    <button type="button" class="secondary" onclick="printCredential()">Imprimir</button>
+  </div>
+
+  <p class="note">
+    Consejo: utiliza fotografías claras y un logotipo con fondo transparente
+    para obtener mejores resultados.
+  </p>
+</section>
+
+<section class="preview">
+  <h2>Vista previa de tu credencial</h2>
+
+  <div id="credential">
+    <div class="card-content">
+
+      <div class="card-header">
+        <img id="logoPreview" alt="Logotipo">
+        <div class="company" id="companyPreview">MI EMPRESA</div>
+      </div>
+
+      <div class="card-body">
+        <img id="photoPreview" alt="Fotografía del empleado">
+        <div class="employee-info">
+          <div id="namePreview">NOMBRE DEL EMPLEADO</div>
+          <div class="data-line" id="jobPreview">Puesto: No especificado</div>
+          <div class="data-line" id="departmentPreview">Departamento: No especificado</div>
+          <div class="data-line" id="numberPreview">No. empleado: ---</div>
+          <div class="data-line" id="phonePreview">Teléfono: ---</div>
+          <div class="data-line" id="emailPreview">Correo: ---</div>
+          <div class="data-line" id="datesPreview">Vigencia: ---</div>
+        </div>
+      </div>
+
+      <div class="card-footer" id="footerPreview">IDENTIFICACIÓN OFICIAL</div>
+
+    </div>
+  </div>
+
+  <p class="note">La vista previa se actualiza conforme modificas los datos.</p>
+</section>
+
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+
+let logo = null;
+let photo = null;
+let customBackground = null;
+let cameraStream = null;
+
+const backgrounds = {
+  blue: ["#12345b","#2877a9"],
+  navy: ["#071b36","#16436c"],
+  red: ["#651b29","#c0394b"],
+  green: ["#064e3b","#15966d"],
+  purple: ["#39215f","#8054b8"],
+  black: ["#101820","#414b55"],
+  orange: ["#923d12","#e58a29"],
+  gray: ["#343d4a","#8794a5"],
+  teal: ["#075b63","#19a6a6"]
+};
+
+function readImage(file, callback){
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = new Image();
+    img.onload = () => callback(img);
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+$("logoFile").addEventListener("change", e => {
+  readImage(e.target.files[0], img => {
+    logo = img;
+    updatePreview();
+  });
+});
+
+$("photoFile").addEventListener("change", e => {
+  readImage(e.target.files[0], img => {
+    photo = img;
+    updatePreview();
+  });
+});
+
+$("backgroundFile").addEventListener("change", e => {
+  readImage(e.target.files[0], img => {
+    customBackground = img;
+    updatePreview();
+  });
+});
+
+function updatePreview(){
+  const vertical = $("orientation").value === "vertical";
+  $("credential").classList.toggle("vertical", vertical);
+
+  const bg = backgrounds[$("background").value];
+  $("credential").style.background = customBackground
+    ? `url("${customBackground.src}") center/cover`
+    : `linear-gradient(135deg,${bg[0]},${bg[1]})`;
+
+  $("companyPreview").textContent = $("company").value || "MI EMPRESA";
+  $("namePreview").textContent = $("name").value || "NOMBRE DEL EMPLEADO";
+  $("jobPreview").textContent = "Puesto: " + ($("job").value || "No especificado");
+  $("departmentPreview").textContent = "Departamento: " + ($("department").value || "No especificado");
+  $("numberPreview").textContent = "No. empleado: " + ($("employeeNumber").value || "---");
+  $("phonePreview").textContent = "Teléfono: " + ($("phone").value || "---");
+  $("emailPreview").textContent = "Correo: " + ($("email").value || "---");
+
+  const start = $("startDate").value;
+  const expiry = $("expiryDate").value;
+  $("datesPreview").textContent =
+    "Ingreso: " + (start || "---") + " | Vigencia: " + (expiry || "---");
+
+  $("footerPreview").textContent = $("footer").value || "";
+
+  $("companyPreview").style.color = $("companyColor").value;
+  $("namePreview").style.color = $("nameColor").value;
+  $("namePreview").style.fontWeight = $("nameWeight").value;
+
+  $("companyPreview").style.fontFamily = $("font").value;
+  $("namePreview").style.fontFamily = $("font").value;
+  $("footerPreview").style.fontFamily = $("font").value;
+  $("footerPreview").style.color = $("footerColor").value;
+
+  document.querySelectorAll(".data-line").forEach(el => {
+    el.style.color = $("dataColor").value;
+    el.style.fontFamily = $("font").value;
+    el.style.fontWeight = $("dataWeight").value;
+  });
+
+  if(logo){
+    $("logoPreview").src = logo.src;
+    $("logoPreview").style.display = "block";
+  }else{
+    $("logoPreview").style.display = "none";
+  }
+
+  if(photo){
+    $("photoPreview").src = photo.src;
+    $("photoPreview").style.visibility = "visible";
+  }else{
+    $("photoPreview").removeAttribute("src");
+    $("photoPreview").style.visibility = "hidden";
+  }
+}
+
+document.querySelectorAll("input,select").forEach(el => {
+  el.addEventListener("input", updatePreview);
+  el.addEventListener("change", updatePreview);
+});
+
+async function openCamera(){
+  try{
+    cameraStream = await navigator.mediaDevices.getUserMedia({
+      video:{facingMode:"user"},
+      audio:false
+    });
+    $("camera").srcObject = cameraStream;
+    $("camera").style.display = "block";
+  }catch(error){
+    alert("No se pudo acceder a la cámara. Revisa los permisos del navegador y utiliza HTTPS o localhost.");
+  }
+}
+
+function capturePhoto(){
+  const video = $("camera");
+  if(!cameraStream || !video.videoWidth){
+    alert("Primero abre la cámara.");
+    return;
+  }
+
+  const canvas = document.createElement("canvas");
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  canvas.getContext("2d").drawImage(video,0,0);
+
+  const img = new Image();
+  img.onload = () => {
+    photo = img;
+    updatePreview();
+  };
+  img.src = canvas.toDataURL("image/png");
+
+  cameraStream.getTracks().forEach(track => track.stop());
+  cameraStream = null;
+  video.srcObject = null;
+  video.style.display = "none";
+}
+
+$("cameraButton").addEventListener("click",openCamera);
+$("captureButton").addEventListener("click",capturePhoto);
+
+function drawCover(ctx,img,x,y,w,h){
+  const scale = Math.max(w/img.width,h/img.height);
+  const sw = w/scale;
+  const sh = h/scale;
+  const sx = (img.width-sw)/2;
+  const sy = (img.height-sh)/2;
+  ctx.drawImage(img,sx,sy,sw,sh,x,y,w,h);
+}
+
+function drawTextFit(ctx,text,x,y,maxWidth,size,minSize,weight="normal"){
+  let current = size;
+  ctx.font = `${weight} ${current}px "${$("font").value}"`;
+
+  while(ctx.measureText(text).width > maxWidth && current > minSize){
+    current--;
+    ctx.font = `${weight} ${current}px "${$("font").value}"`;
+  }
+
+  ctx.fillText(text,x,y);
+}
+
+function drawCredential(){
+  const vertical = $("orientation").value === "vertical";
+  const W = vertical ? 638 : 1010;
+  const H = vertical ? 1010 : 638;
+
+  const canvas = document.createElement("canvas");
+  canvas.width = W;
+  canvas.height = H;
+  const ctx = canvas.getContext("2d");
+
+  const bg = backgrounds[$("background").value];
+
+  if(customBackground){
+    drawCover(ctx,customBackground,0,0,W,H);
+  }else{
+    const gradient = ctx.createLinearGradient(0,0,W,H);
+    gradient.addColorStop(0,bg[0]);
+    gradient.addColorStop(1,bg[1]);
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0,0,W,H);
+  }
+
+  // Decoración
+  ctx.fillStyle = "#ffffff18";
+  ctx.beginPath();
+  ctx.moveTo(W*.65,0);
+  ctx.lineTo(W,0);
+  ctx.lineTo(W,H);
+  ctx.lineTo(W*.85,H);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.fillStyle = "#ffffff12";
+  ctx.beginPath();
+  ctx.moveTo(W*.82,0);
+  ctx.lineTo(W,0);
+  ctx.lineTo(W,H*.7);
+  ctx.closePath();
+  ctx.fill();
+
+  const pad = vertical ? 38 : 42;
+
+  // Encabezado
+  if(vertical){
+    if(logo){
+      ctx.fillStyle = "#fff";
+      ctx.beginPath();
+      ctx.roundRect(W/2-48,35,96,96,12);
+      ctx.fill();
+      drawCover(ctx,logo,W/2-44,39,88,88);
+    }
+
+    ctx.textAlign = "center";
+    ctx.fillStyle = $("companyColor").value;
+    drawTextFit(ctx,$("company").value || "MI EMPRESA",W/2,165,W-80,34,18,"bold");
+  }else{
+    if(logo){
+      ctx.fillStyle = "#fff";
+      ctx.beginPath();
+      ctx.roundRect(pad,32,90,90,12);
+      ctx.fill();
+      drawCover(ctx,logo,pad+4,36,82,82);
+    }
+
+    ctx.textAlign = "left";
+    ctx.fillStyle = $("companyColor").value;
+    drawTextFit(ctx,$("company").value || "MI EMPRESA",
+      logo ? pad+110 : pad,88,W-pad-150,35,19,"bold");
+  }
+
+  // Fotografía
+  const photoBox = vertical
+    ? {x:W*.27,y:215,w:W*.46,h:300}
+    : {x:pad,y:155,w:280,h:365};
+
+  if(photo){
+    ctx.save();
+    ctx.beginPath();
+    ctx.roundRect(photoBox.x,photoBox.y,photoBox.w,photoBox.h,15);
+    ctx.clip();
+    drawCover(ctx,photo,photoBox.x,photoBox.y,photoBox.w,photoBox.h);
+    ctx.restore();
+
+    ctx.strokeStyle="#ffffff";
+    ctx.lineWidth=8;
+    ctx.beginPath();
+    ctx.roundRect(photoBox.x,photoBox.y,photoBox.w,photoBox.h,15);
+    ctx.stroke();
+  }else{
+    ctx.fillStyle="#ffffff33";
+    ctx.beginPath();
+    ctx.roundRect(photoBox.x,photoBox.y,photoBox.w,photoBox.h,15);
+    ctx.fill();
+    ctx.fillStyle="#ffffff";
+    ctx.font="bold 22px Arial";
+    ctx.textAlign="center";
+    ctx.fillText("FOTOGRAFÍA",photoBox.x+photoBox.w/2,photoBox.y+photoBox.h/2);
+  }
+
+  // Datos
+  const infoX = vertical ? W/2 : 365;
+  const infoY = vertical ? 570 : 205;
+  const maxWidth = vertical ? W-80 : W-410;
+
+  ctx.textAlign = vertical ? "center" : "left";
+  ctx.fillStyle = $("nameColor").value;
+
+  drawTextFit(ctx,$("name").value || "NOMBRE DEL EMPLEADO",
+    infoX,infoY,maxWidth,vertical?36:48,20,$("nameWeight").value);
+
+  const lines = [
+    "Puesto: " + ($("job").value || "No especificado"),
+    "Departamento: " + ($("department").value || "No especificado"),
+    "No. empleado: " + ($("employeeNumber").value || "---"),
+    "Teléfono: " + ($("phone").value || "---"),
+    "Correo: " + ($("email").value || "---"),
+    "Ingreso: " + ($("startDate").value || "---"),
+    "Vigencia: " + ($("expiryDate").value || "---")
+  ];
+
+  ctx.fillStyle = $("dataColor").value;
+  ctx.font = `${$("dataWeight").value} ${vertical?19:23}px "${$("font").value}"`;
+
+  lines.forEach((line,i)=>{
+    const y = infoY + (vertical?43:48) + i*(vertical?35:39);
+    drawTextFit(ctx,line,infoX,y,maxWidth,vertical?19:23,12,$("dataWeight").value);
+  });
+
+  // Pie
+  const footerY = H-(vertical?55:42);
+  ctx.strokeStyle="#ffffff88";
+  ctx.lineWidth=2;
+  ctx.beginPath();
+  ctx.moveTo(pad,footerY-30);
+  ctx.lineTo(W-pad,footerY-30);
+  ctx.stroke();
+
+  ctx.fillStyle=$("footerColor").value;
+  ctx.font=`bold ${vertical?19:21}px "${$("font").value}"`;
+  ctx.textAlign="center";
+  ctx.fillText($("footer").value || "",W/2,footerY);
+
+  return canvas;
+}
+
+function downloadCredential(){
+  const canvas = drawCredential();
+  const link = document.createElement("a");
+  link.download = "credencial_empleado.png";
+  link.href = canvas.toDataURL("image/png");
+  link.click();
+}
+
+function printCredential(){
+  const canvas = drawCredential();
+  const data = canvas.toDataURL("image/png");
+  const win = window.open("","_blank");
+
+  if(!win){
+    alert("Permite las ventanas emergentes para imprimir.");
+    return;
+  }
+
+  win.document.write(`
+    <html>
+    <head><title>Imprimir credencial</title>
+    <style>
+      body{margin:0;display:flex;justify-content:center;align-items:center;min-height:100vh}
+      img{max-width:95%;max-height:95vh;object-fit:contain}
+      @media print{body{min-height:0}img{max-width:100%;max-height:95vh}}
+    </style>
+    </head>
+    <body>
+      <img src="${data}" onload="setTimeout(()=>window.print(),300)">
+    </body>
+    </html>
+  `);
+  win.document.close();
+}
+
+updatePreview();
+</script>
+
+</body>
+</html>
